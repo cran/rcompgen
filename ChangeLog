@@ -1,0 +1,25 @@
+
+
+2006-12-22:
+
+	Disabled function checking by default, since that leads to loading
+	of lazy loaded symbols all over the place.  Added a new unexported
+	function .guessTokenFromLine() for backends that don't
+	automatically do token determination.  Also added a
+	proof-of-concept implementation of rcompgen-based completion for
+	ESS in inst/examples/altesscomp.el
+	
+	
+2006-11-11:
+
+	added support for special completions inside library(), require()
+	and data(); help completions after "?"; bumped version to 0.1-2
+
+2006-11-10: 
+
+	split rcompletion 0.0-12 into rcompletion_0.1-1 (readline binding)
+	and rcompgen_0.1-1 (code to generate completions, possibly useful
+	in contexts other than readline).  It is anticipated that further
+	development will be restricted to rcompgen.
+
+
