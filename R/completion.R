@@ -49,7 +49,7 @@
 
 ## modifies settings:
 
-rc.settings <- function(ops, ns, args, func, ipck, S3, data, help, argdb)
+rc.settings <- function(ops, ns, args, func, ipck, S3, data, help, argdb, files)
 {
     checkAndChange <- function(what, value)
     {
@@ -58,15 +58,16 @@ rc.settings <- function(ops, ns, args, func, ipck, S3, data, help, argdb)
             !is.na(value))
             .CompletionEnv$settings[[what]] <- value
     }
-    if (!missing(ops))   checkAndChange( "ops",  ops)
-    if (!missing(ns))    checkAndChange(  "ns",   ns)
-    if (!missing(args))  checkAndChange("args", args)
-    if (!missing(func))  checkAndChange("func", args)
-    if (!missing(ipck))  checkAndChange("ipck", ipck)
-    if (!missing(S3))    checkAndChange("S3", S3)
-    if (!missing(data))  checkAndChange("data", S3)
-    if (!missing(help))  checkAndChange("help", S3)
-    if (!missing(argdb)) checkAndChange("argdb", S3)
+    if (!missing(ops))   checkAndChange(  "ops",   ops)
+    if (!missing(ns))    checkAndChange(   "ns",    ns)
+    if (!missing(args))  checkAndChange( "args",  args)
+    if (!missing(func))  checkAndChange( "func",  args)
+    if (!missing(ipck))  checkAndChange( "ipck",  ipck)
+    if (!missing(S3))    checkAndChange(   "S3",    S3)
+    if (!missing(data))  checkAndChange( "data",  data)
+    if (!missing(help))  checkAndChange( "help",  help)
+    if (!missing(argdb)) checkAndChange("argdb", argdb)
+    if (!missing(files)) checkAndChange("files", files)
     invisible()
 }
 
@@ -146,7 +147,26 @@ rc.status <- function()
 {
     linebuffer <- .CompletionEnv[["linebuffer"]]
     end <- .CompletionEnv[["end"]]
-    start <- suppressWarnings(gregexpr("[^\\.\\w:?$@[\\]]+", substr(linebuffer, 1, end), perl = TRUE))[[1]]
+
+    ## special rules apply when we are inside quotes (see fileCompletionPreferred() below)
+    insideQuotes <- {
+        lbss <- head(unlist(strsplit(linebuffer, "")), .CompletionEnv[["end"]])
+        ((sum(lbss == "'") %% 2 == 1) ||
+         (sum(lbss == '"') %% 2 == 1))
+    }
+    start <- 
+        if (insideQuotes)
+
+            ## FIXME (easy): should just set 'start' to the location
+            ## of the last quote, but that would need more minutes of
+            ## thinking than I have right now.
+
+            suppressWarnings(gregexpr("[^\\.\\w:?$@[\\]\\\\/~ ]+", substr(linebuffer, 1, end), perl = TRUE))[[1]]
+        else
+            suppressWarnings(gregexpr("[^\\.\\w:?$@[\\]]+", substr(linebuffer, 1, end), perl = TRUE))[[1]]
+
+    
+            
     ##                                    ^^^^^^^^^^^^^^
     ##                             things that should not cause breaks
     start <- ## 0-indexed
@@ -650,13 +670,40 @@ fileCompletionPreferred <- function()
 {
     ((st <- .CompletionEnv[["start"]]) > 0 && {
         
+        ## yes if the number of quote signs to the left is odd
         linebuffer <- .CompletionEnv[["linebuffer"]]
         lbss <- head(unlist(strsplit(linebuffer, "")), .CompletionEnv[["end"]])
         ((sum(lbss == "'") %% 2 == 1) ||
          (sum(lbss == '"') %% 2 == 1))
-
+        
     })
+    ## FIXME: shouldn't if inside x["foo or x[["foo...
 }
+
+
+## do filename completion.  This is not currently used, and for
+## frontends that can do filename completion themselves this should
+## probably not be used even if it works
+
+
+fileCompletions <- function(token)
+{
+    ## uses Sys.glob (conveniently introduced in 2.5.0)
+    ## assume token starts just after the begin quote
+
+    ## Sys.glob doesn't work without expansion.  Is that intended?
+    token.expanded <- path.expand(token)
+    comps <- Sys.glob(sprintf("%s*", token.expanded), dirmark = TRUE)
+
+    ## for things that only extend beyond the cursor, need to
+    ## 'unexpand' path
+    if (token.expanded != token)
+        comps <- sub(path.expand("~"), "~", comps, fixed = TRUE)
+    comps
+}
+
+
+
 
 
 ## .completeToken() is the primary interface, and does the actual
@@ -681,8 +728,17 @@ fileCompletionPreferred <- function()
         ## and act accordingly.  It's probably even OK to fill
         ## .CompletionEnv$comps with something suitable.
 
-        .CompletionEnv[["comps"]] <- character(0)
-        .setFileComp(TRUE)
+        if (.CompletionEnv$settings[["files"]])
+        {
+            .CompletionEnv[["comps"]] <- fileCompletions(text)
+            .setFileComp(FALSE)
+        }
+        else
+        {
+            .CompletionEnv[["comps"]] <- character(0)
+            .setFileComp(TRUE)
+        }
+        
     }
     else
     {

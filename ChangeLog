@@ -1,4 +1,17 @@
 
+
+
+
+2007-04-08:
+
+	Filename completion made on by default for Windows
+
+	
+2007-04-07:
+
+	Filename completion using Sys.glob added (off by default)
+
+	
 2007-04-04:
 
 	Subversion hosting moved to

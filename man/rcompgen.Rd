@@ -20,7 +20,7 @@
   
 \usage{
 
-rc.settings(ops, ns, args, func, ipck, S3, data, help, argdb)
+rc.settings(ops, ns, args, func, ipck, S3, data, help, argdb, files)
 rc.status()
 
 rc.getOption(name)
@@ -29,7 +29,7 @@ rc.options(\dots)
 }
 
 \arguments{
-  \item{ops, ns, args, func, ipck, S3, data, help, argdb}{
+  \item{ops, ns, args, func, ipck, S3, data, help, argdb, files}{
 
     logical, turning some optional completion features on and off.
 
@@ -80,12 +80,20 @@ rc.options(\dots)
 	\code{.addFunctionInfo} (see below).
       }
 
+      \item{\code{files}:}{ enables filename completion in R code.  This
+	is initially set to \code{FALSE}, in which case the underlying
+	completion front-end can take over (and hopefully do a better
+	job than we would have done).  For systems where no such
+	facilities exist, this can be set to \code{TRUE} if file name
+	completion is desired.  This is currently experimental and may
+	not work very well.  }
+
     }
 
-    All settings are turned on by default except \code{ipck} and
-    \code{func}.  Turn these off if your CPU cycles are valuable; you
-    will still retain basic completion on names of objects in the search
-    list.  See below for additional details.
+    All settings are turned on by default except \code{ipck},
+    \code{func} and \code{files}.  Turn more off if your CPU cycles are
+    valuable; you will still retain basic completion on names of objects
+    in the search list.  See below for additional details.
   }
   \item{name, \dots}{ user-settable options.  Currently valid names are
     \describe{
@@ -265,7 +273,8 @@ rc.options(\dots)
     .getFileComp()
 
     .guessTokenFromLine()
-    .win32consoleCompletion(linebuffer, cursorPosition)
+    .win32consoleCompletion(linebuffer, cursorPosition,
+                            check.repeat = TRUE)
 
     .addFunctionInfo(...)
   }
@@ -294,14 +303,20 @@ rc.options(\dots)
 
   The \code{.win32consoleCompletion} is similar in spirit, but is more
   geared towards the Windows GUI.  It requires the linebuffer and cursor
-  position as arguments, and returns a list with two components,
-  \code{addition} and \code{possible}.  If there is an unambiguous
-  extension at the current position, \code{addition} contains the
-  additional text that should be inserted at the cursor.  If there is
-  more than one possibility, these are available as a character vector
-  in \code{possible}.  These character strings are formatted lines
-  (created using the current \code{width} option), not individual
-  completions.  As the front-end interfaces evolve, the details of these
+  position as arguments, and returns a list with three components,
+  \code{addition}, \code{possible} and \code{comps}.  If there is an
+  unambiguous extension at the current position, \code{addition}
+  contains the additional text that should be inserted at the cursor.
+  If there is more than one possibility, these are available either as a
+  character vector of preformatted strings in \code{possible}, or as a
+  single string in \code{comps}.  \code{possible} consists of lines
+  formatted using the current \code{width} option, so that printing them
+  on the console one line at a time will be a reasonable way to list
+  them.  \code{comps} is a space separated (collapsed) list of the same
+  completions, in case the front-end wishes to display it in some other
+  fashion.
+
+  As the various front-end interfaces evolve, the details of these
   functions are likely to change as well.
 
   The function \code{.addFunctionInfo} can be used to add information
