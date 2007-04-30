@@ -274,7 +274,8 @@ rc.options(\dots)
 
     .guessTokenFromLine()
     .win32consoleCompletion(linebuffer, cursorPosition,
-                            check.repeat = TRUE)
+                            check.repeat = TRUE, 
+			    minlength = -1)
 
     .addFunctionInfo(...)
   }
@@ -302,19 +303,29 @@ rc.options(\dots)
   given in the \code{examples/altesscomp.el} file.)
 
   The \code{.win32consoleCompletion} is similar in spirit, but is more
-  geared towards the Windows GUI.  It requires the linebuffer and cursor
-  position as arguments, and returns a list with three components,
-  \code{addition}, \code{possible} and \code{comps}.  If there is an
-  unambiguous extension at the current position, \code{addition}
-  contains the additional text that should be inserted at the cursor.
-  If there is more than one possibility, these are available either as a
-  character vector of preformatted strings in \code{possible}, or as a
-  single string in \code{comps}.  \code{possible} consists of lines
-  formatted using the current \code{width} option, so that printing them
-  on the console one line at a time will be a reasonable way to list
-  them.  \code{comps} is a space separated (collapsed) list of the same
-  completions, in case the front-end wishes to display it in some other
-  fashion.
+  geared towards the Windows GUI (or rather, any front-end that has no
+  completion facilities of its own).  It requires the linebuffer
+  and cursor position as arguments, and returns a list with three
+  components, \code{addition}, \code{possible} and \code{comps}.  If
+  there is an unambiguous extension at the current position,
+  \code{addition} contains the additional text that should be inserted
+  at the cursor.  If there is more than one possibility, these are
+  available either as a character vector of preformatted strings in
+  \code{possible}, or as a single string in \code{comps}.
+  \code{possible} consists of lines formatted using the current
+  \code{width} option, so that printing them on the console one line at
+  a time will be a reasonable way to list them.  \code{comps} is a space
+  separated (collapsed) list of the same completions, in case the
+  front-end wishes to display it in some other fashion.
+
+  The \code{minlength} argument can be used to suppress completion when
+  the token is too short (which can be useful if the front-end is set up
+  to try completion on every keypress).  If \code{check.repeat} is
+  \code{TRUE}, it is detected if the same completion is being requested
+  more than once in a row, and ambiguous completions are returned only
+  in that case.  This is an attempt to emulate GNU Readline behaviour,
+  where a single TAB completes upto any unambiguous part, and multiple
+  possibilities are reported only on two consecutive TABs.
 
   As the various front-end interfaces evolve, the details of these
   functions are likely to change as well.

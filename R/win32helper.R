@@ -7,7 +7,10 @@
 ## API should be noted in man/rcompgen.Rd
 
 
-.win32consoleCompletion <- function(linebuffer, cursorPosition, check.repeat = TRUE)
+.win32consoleCompletion <-
+    function(linebuffer, cursorPosition,
+             check.repeat = TRUE,
+             minlength = -1)
 {
     isRepeat <- ## is TAB being pressed repeatedly with this combination?
         if (check.repeat)
@@ -18,12 +21,17 @@
     .assignLinebuffer(linebuffer)
     .assignEnd(cursorPosition)
     .guessTokenFromLine()
-    .completeToken()
-    comps <- .retrieveCompletions()
+    token <- .CompletionEnv[["token"]]
+    comps <-
+        if (nchar(token) < minlength) character(0)
+        else
+        {
+            .completeToken()
+            .retrieveCompletions()
+        }
 
     ## FIXME: no idea how much of this is MBCS-safe
 
-    token <- .CompletionEnv[["token"]]
     if (length(comps) == 0)
     {
         ## no completions

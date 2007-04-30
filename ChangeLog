@@ -1,5 +1,8 @@
 
+2007-04-16:
 
+	Added a 'minlength' argument to .win32consoleCompletion(), so that
+	completion can be skipped when the token is too short
 
 
 2007-04-08:

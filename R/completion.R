@@ -130,7 +130,7 @@ rc.status <- function()
 .assignEnd           <- function(end)   assign("end",        end,   envir = .CompletionEnv)
 .setFileComp         <- function(state) assign("fileName",   state, envir = .CompletionEnv)
 
-.retrieveCompletions <- function()         get("comps",             envir = .CompletionEnv)
+.retrieveCompletions <- function()  unique(get("comps",             envir = .CompletionEnv))
 .getFileComp         <- function()         get("fileName",          envir = .CompletionEnv)
 
 
@@ -143,11 +143,9 @@ rc.status <- function()
 
 
 .guessTokenFromLine <-
-    function()
+    function(linebuffer = .CompletionEnv[["linebuffer"]],
+             end = .CompletionEnv[["end"]])
 {
-    linebuffer <- .CompletionEnv[["linebuffer"]]
-    end <- .CompletionEnv[["end"]]
-
     ## special rules apply when we are inside quotes (see fileCompletionPreferred() below)
     insideQuotes <- {
         lbss <- head(unlist(strsplit(linebuffer, "")), .CompletionEnv[["end"]])
@@ -523,8 +521,6 @@ inFunction <-
         prefix <- substr(line, 1, index - 1)
         suffix <- substr(line, index + 1, cursor + 1)
 
-
-
         ## note in passing whether we are the first argument (no '='
         ## and no ',' in suffix)
 
@@ -538,7 +534,8 @@ inFunction <-
                                      tail(gregexpr("=", suffix, fixed = TRUE)[[1]], 1),
                                      1e6), fixed = TRUE)) == 0))
         {
-            ## we are on the wrong side of a = to be an argument
+            ## we are on the wrong side of a = to be an argument, so
+            ## we don't care even if we are inside a function
             return(character(0))
         }
         else ## guess function name
@@ -666,6 +663,7 @@ functionArgs <-
 ## number of quotes between the cursor and the beginning of the line
 ## is an odd number.
 
+isInsideQuotes <- 
 fileCompletionPreferred <- function()
 {
     ((st <- .CompletionEnv[["start"]]) > 0 && {
@@ -677,13 +675,12 @@ fileCompletionPreferred <- function()
          (sum(lbss == '"') %% 2 == 1))
         
     })
-    ## FIXME: shouldn't if inside x["foo or x[["foo...
 }
 
 
-## do filename completion.  This is not currently used, and for
-## frontends that can do filename completion themselves this should
-## probably not be used even if it works
+## File name completion, used if settings$files == TRUE.  Front ends
+## that can do filename completion themselves should probably not use
+## this as they will do a better job.
 
 
 fileCompletions <- function(token)
@@ -713,24 +710,45 @@ fileCompletions <- function(token)
 .completeToken <- function()
 {
     text <- .CompletionEnv[["token"]]
-    if (fileCompletionPreferred())
+    if (isInsideQuotes())
     {
 
-        ## If we're in here, that means we think standard filename
-        ## completion is more appropriate (by design, this is supposed
-        ## to happen when we're inside quotes, which is not exactly
-        ## equivalent, but there's not much else we can do anyway in
-        ## that case).  We make no attempt to do filename completion
-        ## because other people have written better code to do that,
-        ## and so we set our completion list to be empty.  Third party
-        ## software using this code can interrogate
-        ## rc.status("fileName") to determine if this is the situation
-        ## and act accordingly.  It's probably even OK to fill
-        ## .CompletionEnv$comps with something suitable.
+        ## If we're in here, that means we think the cursor is inside
+        ## quotes.  In most cases, this means that standard filename
+        ## completion is more appropriate, but probably not if we're
+        ## trying to access things of the form x["foo... or x$"foo...
+        ## The following tries to figure this out, but it won't work
+        ## in all cases (e.g. x[, "foo<TAB>"])
+
+        ## We assume that whoever determines our token boundaries
+        ## considers quote signs as a breaking symbol.
+
+        st <- .CompletionEnv[["start"]]
+        probablyNotFilename <- 
+            (st > 2 && 
+             (substr(.CompletionEnv[["linebuffer"]], st-1, st-1) %in% c("[", ":", "$")))
+
+
+        ## If the 'files' setting is FALSE, we will make no attempt to
+        ## do filename completion (this is likely to happen with
+        ## front-ends that are capable of doing their own file name
+        ## completion; such front-ends can fall back to their native
+        ## file completion when rc.status("fileName") is TRUE.
 
         if (.CompletionEnv$settings[["files"]])
         {
-            .CompletionEnv[["comps"]] <- fileCompletions(text)
+
+            ## we bail out if probablyNotFilename == TRUE.  If we
+            ## wanted to be really fancy, we could try to detect where
+            ## we are and act accordingly, e.g. if it's
+            ## foo[["bar<TAB>, pretend we are completing foo$bar, etc.
+            ## This is not that hard, we just need to use
+            ## .guessTokenFromLine(linebuffer, end = st - 1) to get the
+            ## 'foo[[' part.
+
+            .CompletionEnv[["comps"]] <-
+                if (probablyNotFilename) character(0)
+                else fileCompletions(text)
             .setFileComp(FALSE)
         }
         else
@@ -758,12 +776,12 @@ fileCompletions <- function(token)
 
         fargComps <- functionArgs(guessedFunction, text)
 
-        if (getIsFirstArg() &&
+        if (getIsFirstArg() && length(guessedFunction) > 0 &&
             guessedFunction %in%
             c("library", "require", "data"))
         {
-            ## don't try anything else
             .CompletionEnv[["comps"]] <- fargComps
+            ## don't try anything else
             return()
         }
 

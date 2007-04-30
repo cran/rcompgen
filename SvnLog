@@ -1,4 +1,111 @@
 ------------------------------------------------------------------------
+r4290 | deepayan | 2007-04-16 11:54:38 -0700 (Mon, 16 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/R/win32helper.R
+   M /trunk/rcompgen/man/rcompgen.Rd
+
+added a 'minlength' argument, so that completion is only attempted
+when the token is long enough
+------------------------------------------------------------------------
+r4289 | deepayan | 2007-04-16 11:53:33 -0700 (Mon, 16 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/R/completion.R
+
+bugfix: check if a function guess is avilable before trying to see if
+it's library etc
+------------------------------------------------------------------------
+r4282 | deepayan | 2007-04-08 16:28:10 -0700 (Sun, 08 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/ChangeLog
+   M /trunk/rcompgen/DESCRIPTION
+   M /trunk/rcompgen/R/zzz.R
+
+filename completion turned on by default in Windows
+------------------------------------------------------------------------
+r4281 | deepayan | 2007-04-07 18:15:20 -0700 (Sat, 07 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/R/completion.R
+
+~ expansion should be fixed on Windows
+------------------------------------------------------------------------
+r4280 | deepayan | 2007-04-07 18:02:17 -0700 (Sat, 07 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/R/completion.R
+
+added FIXME note about last commit
+------------------------------------------------------------------------
+r4279 | deepayan | 2007-04-07 18:00:29 -0700 (Sat, 07 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/R/completion.R
+
+guessTokenFromLine now does special things when inside quotes (like
+not split on space)
+------------------------------------------------------------------------
+r4278 | deepayan | 2007-04-07 16:59:53 -0700 (Sat, 07 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/ChangeLog
+   M /trunk/rcompgen/DESCRIPTION
+   M /trunk/rcompgen/R/completion.R
+
+file completion seems to be working, updated version
+------------------------------------------------------------------------
+r4277 | deepayan | 2007-04-07 15:19:09 -0700 (Sat, 07 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/man/rcompgen.Rd
+
+finished incomplete sentence
+------------------------------------------------------------------------
+r4276 | deepayan | 2007-04-07 15:04:57 -0700 (Sat, 07 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/DESCRIPTION
+   M /trunk/rcompgen/R/completion.R
+   M /trunk/rcompgen/R/win32helper.R
+   M /trunk/rcompgen/R/zzz.R
+   M /trunk/rcompgen/man/rcompgen.Rd
+
+fixed a setting bug, added (incomplete) support for filename
+completion, extended return value of win32 helper function
+------------------------------------------------------------------------
+r4271 | deepayan.sarkar | 2007-04-04 13:41:35 -0700 (Wed, 04 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/ChangeLog
+   M /trunk/rcompgen/DESCRIPTION
+   M /trunk/rcompgen/SvnLog
+
+changes to sync with r-project changes (which will be replaced by a
+fresh import with history)
+------------------------------------------------------------------------
+r4270 | deepayan.sarkar | 2007-04-03 19:55:13 -0700 (Tue, 03 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/TODO
+
+added a TODO list
+------------------------------------------------------------------------
+r4269 | deepayan.sarkar | 2007-04-03 19:51:03 -0700 (Tue, 03 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/R/win32helper.R
+   A /trunk/rcompgen/TODO
+   M /trunk/rcompgen/man/rcompgen.Rd
+
+updated docs
+------------------------------------------------------------------------
+r4268 | deepayan.sarkar | 2007-04-03 19:27:43 -0700 (Tue, 03 Apr 2007) | 1 line
+Changed paths:
+   M /trunk/rcompgen/ChangeLog
+   M /trunk/rcompgen/SvnLog
+
+updated change logs
+
+
+
+**************************************************************
+*   Some entries omitted because they are basically a        *
+*   recreation of the original tree with history             *
+**************************************************************
+
+
+
+------------------------------------------------------------------------
 r4239 | deepayan | 2007-04-04 11:48:50 -0700 (Wed, 04 Apr 2007) | 1 line
 Changed paths:
    M /trunk/rcompgen/ChangeLog
