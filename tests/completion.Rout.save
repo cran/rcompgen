@@ -1,0 +1,90 @@
+
+R version 2.6.0 Under development (unstable) (2007-05-23 r41687)
+Copyright (C) 2007 The R Foundation for Statistical Computing
+ISBN 3-900051-07-0
+
+R is free software and comes with ABSOLUTELY NO WARRANTY.
+You are welcome to redistribute it under certain conditions.
+Type 'license()' or 'licence()' for distribution details.
+
+R is a collaborative project with many contributors.
+Type 'contributors()' for more information and
+'citation()' on how to cite R or R packages in publications.
+
+Type 'demo()' for some demos, 'help()' for on-line help, or
+'help.start()' for an HTML browser interface to help.
+Type 'q()' to quit R.
+
+> 
+> ## test some typical completion attempts
+> 
+> testLine <- function(line, cursor = nchar(line))
++ {
++     str(rcompgen:::.win32consoleCompletion(line, cursor))
++ }
+> 
+> testLine("")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr ""
+> 
+> testLine("lib")
+List of 3
+ $ addition: chr "rary"
+ $ possible: chr(0) 
+ $ comps   : chr "library library.dynam library.dynam.unload"
+> testLine("data(")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "AirPassengers BJsales BJsales.lead (BJsales) BOD CO2 ChickWeight DNase EuStockMarkets Formaldehyde HairEyeColor Harman23.cor Ha"| __truncated__
+> testLine("data(US")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "USAccDeaths USArrests USJudgeRatings USPersonalExpenditure"
+> testLine("data(US", 3)
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "data data.class dataentry data.entry data.frame data.matrix date datasets::"
+> 
+> testLine("?INS")
+List of 3
+ $ addition: chr "TALL"
+ $ possible: chr(0) 
+ $ comps   : chr "?INSTALL"
+> 
+> testLine("utils::data")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "utils::data utils::dataentry utils::data.entry"
+> testLine("utils:::.show_help_on_topic_")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "utils:::.show_help_on_topic_as_HTML utils:::.show_help_on_topic_offline"
+> testLine("utils::.show_help_on_topic_")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "utils::"
+> 
+> testLine("update(")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "object= ...= formula.= evaluate= old= new= lib.loc= repositories="
+> 
+> testLine("version$m")
+List of 3
+ $ addition: chr ""
+ $ possible: chr(0) 
+ $ comps   : chr "version$major version$minor version$month"
+> 
+> ## testLine("")
+> ## testLine("")
+> ## testLine("")
+> 

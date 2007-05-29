@@ -154,17 +154,11 @@ rc.status <- function()
     }
     start <- 
         if (insideQuotes)
-
-            ## FIXME (easy): should just set 'start' to the location
-            ## of the last quote, but that would need more minutes of
-            ## thinking than I have right now.
-
-            suppressWarnings(gregexpr("[^\\.\\w:?$@[\\]\\\\/~ ]+", substr(linebuffer, 1, end), perl = TRUE))[[1]]
+            ## set 'start' to the location of the last quote
+            suppressWarnings(gregexpr("['\"]", substr(linebuffer, 1, end), perl = TRUE))[[1]]
+            ## suppressWarnings(gregexpr("[^\\.\\w:?$@[\\]\\\\/~ ]+", substr(linebuffer, 1, end), perl = TRUE))[[1]]
         else
             suppressWarnings(gregexpr("[^\\.\\w:?$@[\\]]+", substr(linebuffer, 1, end), perl = TRUE))[[1]]
-
-    
-            
     ##                                    ^^^^^^^^^^^^^^
     ##                             things that should not cause breaks
     start <- ## 0-indexed
@@ -189,6 +183,7 @@ rc.status <- function()
 makeRegexpSafe <- function(s)
 {
     s <- gsub(".", "\\.", s, fixed = TRUE)
+    s <- gsub("?", "\\?", s, fixed = TRUE)
     ## what else?
     s
 }
@@ -387,10 +382,14 @@ specialCompletions <- function(text, spl)
 keywordCompletions <- function(text)
 {
     grep(sprintf("^%s", makeRegexpSafe(text)),
-         c("NULL", "NA", "TRUE", "FALSE", "GLOBAL.ENV", "Inf", "NaN",
-           "repeat ", "in ", "next ", "break "),
+         c("NULL", "NA", "TRUE", "FALSE", "Inf", "NaN",
+           "NA_integer_", "NA_real_", "NA_character_", "NA_complex_",
+           "repeat ", "in ", "next ", "break ", "else "),
          value = TRUE)
 }
+
+ 
+
 
 ## 'package' environments in the search path.  These will be completed
 ## with a :: IIRC, that works even if there's no namespace, but I
@@ -790,11 +789,12 @@ fileCompletions <- function(token)
         ## rcompletion.c on why / is treated specially while + etc are
         ## not (hint: filename completion)
 
-        lastSlash <- tail(gregexpr("/", text, fixed = TRUE)[[1]], 1)
-        if (haveSlash <- (lastSlash > 0))
+        ## lastArithOp <- tail(gregexpr("/", text, fixed = TRUE)[[1]], 1)
+        lastArithOp <- tail(gregexpr("[/*+-]", text)[[1]], 1)
+        if (haveArithOp <- (lastArithOp > 0))
         {
-            prefix <- substr(text, 1, lastSlash)
-            text <- substr(text, lastSlash + 1, 1e6)
+            prefix <- substr(text, 1, lastArithOp)
+            text <- substr(text, lastArithOp + 1, 1e6)
         }
 
         spl <- specialOpLocs(text)
@@ -818,7 +818,7 @@ fileCompletions <- function(token)
 
                 normalCompletions(text, check.mode = appendFunctionSuffix)
             }
-        if (haveSlash && length(comps) > 0)
+        if (haveArithOp && length(comps) > 0)
         {
             comps <- paste(prefix, comps, sep = "")
         }

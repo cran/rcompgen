@@ -23,7 +23,7 @@
     .guessTokenFromLine()
     token <- .CompletionEnv[["token"]]
     comps <-
-        if (nchar(token) < minlength) character(0)
+        if (nchar(token, type = "chars") < minlength) character(0)
         else
         {
             .completeToken()
@@ -51,7 +51,7 @@
         ## with).  So, in this case, I'll just pretend that no
         ## completion was found.
 
-        addition <- substr(comps, nchar(token) + 1, 100000)
+        addition <- substr(comps, nchar(token, type = "chars") + 1, 100000)
         possible <- character(0)
     }
     else if (length(comps) > 1)
@@ -60,7 +60,7 @@
         ## the line by the unique part if any, and list the multiple
         ## possibilities otherwise.
 
-        additions <- substr(comps, nchar(token) + 1, 100000)
+        additions <- substr(comps, nchar(token, type = "chars") + 1, 100000)
         if (length(table(substr(additions, 1, 1))) > 1)
         {
             ## no unique substring
