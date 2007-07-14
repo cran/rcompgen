@@ -224,6 +224,7 @@ matchAvailableTopics <-
     indexFiles <- file.path(ll, names(ll), "help", "AnIndex")
     unique(unlist(lapply(indexFiles,
                          function(f) {
+                             if (!file.exists(f)) return (charater(0))
                              foo <-
                                  scan(f, what = list("", ""),
                                       sep = "\t",
