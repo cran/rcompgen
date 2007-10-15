@@ -1,7 +1,7 @@
 
 .noGenerics <- TRUE
 
-.CompletionEnv <- new.env()
+.CompletionEnv <- new.env(parent = emptyenv())
 
 ## needed to save some overhead in .win32consoleCompletion
 assign("linebuffer", "", env = .CompletionEnv)
